@@ -9,6 +9,7 @@ import my.game.server.utils.PlayerRef
 
 import java.util.UUID
 import scala.collection.mutable.Set
+import scala.util.control.Breaks._
 
 class ServerConnectionActor extends Actor{
 
@@ -18,6 +19,11 @@ class ServerConnectionActor extends Actor{
 			val playerUUID = UUID.randomUUID().toString()
 			Server.players += PlayerRef(sender(), None, playerUUID)
 			sender() ! Connected(playerUUID)
-		case Quit => Server.players.foreach(player => if(player.actorRef == sender()){Server.players -= player})
+		case Quit => breakable{ Server.players.foreach{player =>
+			if(player.actorRef == sender()){
+				Server.players -= player
+				break
+			}
+		}}
 	}
 }
