@@ -13,17 +13,19 @@ import scala.util.control.Breaks._
 
 class ServerConnectionActor extends Actor{
 
+	/**
+	 * Called when actor received message
+	 */
 	def receive = {
 		case Connect => 
-			println("Received")
 			val playerUUID = UUID.randomUUID().toString()
 			Server.players += PlayerRef(sender(), None, playerUUID)
 			sender() ! Connected(playerUUID)
 		case Quit => breakable{ Server.players.foreach{player =>
-			if(player.actorRef == sender()){
-				Server.players -= player
-				break
-			}
-		}}
+				if(player.actorRef == sender()){
+					Server.players -= player
+					break
+				}
+			}}
 	}
 }
