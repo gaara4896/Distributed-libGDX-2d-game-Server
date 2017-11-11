@@ -21,11 +21,14 @@ class ServerConnectionActor extends Actor{
 			val playerUUID = UUID.randomUUID().toString()
 			Server.players += PlayerRef(sender(), None, playerUUID)
 			sender() ! Connected(playerUUID)
-		case Quit => breakable{ Server.players.foreach{player =>
+			
+		case Quit(uuid) => Server.players.foreach{player =>
 				if(player.actorRef == sender()){
 					Server.players -= player
-					break
+					
+				} else {
+					player.actorRef ! KillPlayer(uuid)
 				}
-			}}
+			}
 	}
 }
