@@ -55,14 +55,15 @@ class GameServerActor extends Actor{
 				}
 			}
 
-		case Alive(uuid, map, x, y, direction, state) => 
+		case Alive(uuid, map, x, y, direction, state, frameTime) => 
 			println("Alive")
 			Server.players.foreach{player =>
 				if(player.uuid.equals(uuid)){
 					player.aliveFlag = true
+					player.map = Option(map)
 				} else {
 					player.map match{
-						case Some(somemap) => if(somemap.equals(map)) player.actorRef ! Correction(uuid, x, y, direction, state)
+						case Some(somemap) => if(somemap.equals(map)) player.actorRef ! Correction(uuid, x, y, direction, state, frameTime)
 						case None => 
 					}
 				}
