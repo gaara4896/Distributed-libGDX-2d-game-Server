@@ -15,9 +15,7 @@ class GameServerActor extends Actor{
 	 * Called when received actor message
 	 */
 	def receive = {
-
 		case Move(uuid, map, direction) => 
-			println("Move")
 			Server.players.foreach{player =>
 				player.map match{
 					case Some(somemap) => if(somemap.equals(map)) player.actorRef ! PlayerMove(uuid, direction)
@@ -26,8 +24,6 @@ class GameServerActor extends Actor{
 			}
 
 		case StandStill(uuid, job, map, x, y) =>
-			println(job)
-			println("StandStill")
 			Server.players.foreach{player =>
 				if(player.uuid.equals(uuid)){
 					player.map = Option(map)
@@ -40,7 +36,6 @@ class GameServerActor extends Actor{
 			}
 
 		case ChangeMap(uuid, job, mapFrom, mapTo, x, y) =>
-			println("ChangeMap")
 			Server.players.foreach{player =>
 				if(player.uuid.equals(uuid)){
 					player.map = Option(mapTo)
@@ -58,12 +53,11 @@ class GameServerActor extends Actor{
 			}
 
 		case Alive(uuid, job, map, x, y, direction, state, frameTime) =>
-			println(job)
-			println("Alive")
 			Server.players.foreach{player =>
 				if(player.uuid.equals(uuid)){
 					player.aliveFlag = true
 					player.map = Option(map)
+					player.actorRef ! Ping
 				} else {
 					player.map match{
 						case Some(somemap) => if(somemap.equals(map)) player.actorRef ! Correction(uuid, job, x, y, direction, state, frameTime)
@@ -73,7 +67,6 @@ class GameServerActor extends Actor{
 			}
 
 		case NotAlive(uuid, map) => 
-			println("Someone is not alive")
 			Server.players.foreach{player =>
 				player.map match{
 					case Some(somemap) => if(somemap.equals(map)) player.actorRef ! KillPlayer(uuid)
