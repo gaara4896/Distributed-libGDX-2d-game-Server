@@ -24,20 +24,20 @@ class GameServerActor extends Actor{
 				}
 			}
 
-		case StandStill(uuid, map, x, y) => 
+		case StandStill(uuid, patch, map, x, y) =>
 			println("StandStill")
 			Server.players.foreach{player =>
 				if(player.uuid.equals(uuid)){
 					player.map = Option(map)
 				} else {
 					player.map match{
-						case Some(somemap) => if(somemap.equals(map)) player.actorRef ! PlayerStandStill(uuid, x, y)
+						case Some(somemap) => if(somemap.equals(map)) player.actorRef ! PlayerStandStill(uuid, patch, x, y)
 						case None => 
 					}
 				}
 			}
 
-		case ChangeMap(uuid, mapFrom, mapTo, x, y) => 
+		case ChangeMap(uuid, patch, mapFrom, mapTo, x, y) =>
 			println("ChangeMap")
 			Server.players.foreach{player =>
 				if(player.uuid.equals(uuid)){
@@ -48,14 +48,14 @@ class GameServerActor extends Actor{
 							if(somemap.equals(mapFrom)){
 								player.actorRef ! KillPlayer(uuid)
 							} else if(somemap.equals(mapTo)){
-								player.actorRef ! PlayerStandStill(uuid, x, y)
+								player.actorRef ! PlayerStandStill(uuid, patch, x, y)
 							}
 						case None => 
 					}
 				}
 			}
 
-		case Alive(uuid, map, x, y, direction, state, frameTime) => 
+		case Alive(uuid, patch, map, x, y, direction, state, frameTime) =>
 			println("Alive")
 			Server.players.foreach{player =>
 				if(player.uuid.equals(uuid)){
@@ -63,7 +63,7 @@ class GameServerActor extends Actor{
 					player.map = Option(map)
 				} else {
 					player.map match{
-						case Some(somemap) => if(somemap.equals(map)) player.actorRef ! Correction(uuid, x, y, direction, state, frameTime)
+						case Some(somemap) => if(somemap.equals(map)) player.actorRef ! Correction(uuid, patch, x, y, direction, state, frameTime)
 						case None => 
 					}
 				}
@@ -73,7 +73,7 @@ class GameServerActor extends Actor{
 			Server.players.foreach{player =>
 				player.map match{
 					case Some(somemap) => if(somemap.equals(map)) player.actorRef ! KillPlayer(uuid)
-					case None => 
+					case None =>
 				}
 			}
 	}
