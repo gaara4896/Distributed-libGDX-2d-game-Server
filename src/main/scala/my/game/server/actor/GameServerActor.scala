@@ -73,7 +73,7 @@ class GameServerActor extends Actor{
 			Server.players.foreach{player =>
 				player.map match{
 					case Some(somemap) => if(somemap.equals(map)) player.actorRef ! KillPlayer(uuid)
-					case None => 
+					case None =>
 				}
 			}
 	}
