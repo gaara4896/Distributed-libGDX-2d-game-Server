@@ -6,6 +6,8 @@ import my.game.server.Server
 import my.game.pkg.client.dictionary.ClientDictionary._
 import my.game.server.dictionary.ServerDictionary._
 import my.game.server.utils.PlayerRef
+import my.game.pkg.entity.utils.Job
+import my.game.pkg.entity.utils.Job._
 
 import java.util.UUID
 
@@ -15,17 +17,21 @@ import scala.util.control.Breaks._
 
 class ServerConnectionActor extends Actor{
 
-	val r = Random
-
 	/**
 	 * Called when actor received message
 	 */
 	def receive = {
 		case Connect => 
 			val playerUUID = UUID.randomUUID().toString()
-			val patch = r.nextInt(5)
+			var job:Job = null
+			Random.nextInt(4) match {
+				case 0 => job = Job.WARRIOR
+				case 1 => job = Job.PALADIN
+				case 2 => job = Job.ROGUE
+				case _=> job = Job.ENGINEER
+			}
 			Server.players += PlayerRef(sender(), None, playerUUID)
-			sender() ! Connected(playerUUID, patch)
+			sender() ! Connected(playerUUID, job)
 			
 		case Quit(uuid) => Server.players.foreach{player =>
 				if(player.actorRef == sender()){
