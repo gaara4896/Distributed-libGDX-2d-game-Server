@@ -8,6 +8,7 @@ import my.game.server.dictionary.ServerDictionary._
 import my.game.pkg.entity.utils.Job._
 
 import scala.collection.mutable.Set
+import scala.util.control.Breaks._
 
 class GameServerActor extends Actor{
 
@@ -15,63 +16,50 @@ class GameServerActor extends Actor{
 	 * Called when received actor message
 	 */
 	def receive = {
-		case Move(uuid, map, direction) => 
-			Server.players.foreach{player =>
-				player.map match{
-					case Some(somemap) => if(somemap.equals(map)) player.actorRef ! PlayerMove(uuid, direction)
-					case None => 
-				}
-			}
-
-		case StandStill(uuid, job, map, x, y) =>
-			Server.players.foreach{player =>
-				if(player.uuid.equals(uuid)){
-					player.map = Option(map)
-				} else {
-					player.map match{
-						case Some(somemap) => if(somemap.equals(map)) player.actorRef ! PlayerStandStill(uuid, job, x, y)
-						case None => 
+		case Join(uuid, map) =>
+			Server.mapRouter(map) = Server.mapRouter(map).addRoutee(sender())
+			breakable{
+				Server.players.foreach{player => 
+					if(player.uuid.equals(uuid)){
+						player.map = Option(map)
+						break
 					}
 				}
 			}
 
+		case Move(uuid, map, direction) => 
+			Server.mapRouter(map).route(PlayerMove(uuid, direction), self)
+
+		case StandStill(uuid, job, map, x, y) =>
+			Server.mapRouter(map).route(PlayerStandStill(uuid, job, x, y), self)
+
 		case ChangeMap(uuid, job, mapFrom, mapTo, x, y) =>
-			Server.players.foreach{player =>
-				if(player.uuid.equals(uuid)){
-					player.map = Option(mapTo)
-				} else {
-					player.map match{
-						case Some(somemap) => 
-							if(somemap.equals(mapFrom)){
-								player.actorRef ! KillPlayer(uuid)
-							} else if(somemap.equals(mapTo)){
-								player.actorRef ! PlayerStandStill(uuid, job, x, y)
-							}
-						case None => 
+			Server.mapRouter(mapFrom) = Server.mapRouter(mapFrom).removeRoutee(sender())
+			Server.mapRouter(mapFrom).route(KillPlayer(uuid), self)
+			Server.mapRouter(mapTo).route(PlayerStandStill(uuid, job, x, y), self)
+			Server.mapRouter(mapTo) = Server.mapRouter(mapTo).addRoutee(sender())
+			breakable{
+				Server.players.foreach{player => 
+					if(player.uuid.equals(uuid)){
+						player.map = Option(mapTo)
+						break
 					}
 				}
 			}
 
 		case Alive(uuid, job, map, x, y, direction, state, frameTime) =>
-			Server.players.foreach{player =>
-				if(player.uuid.equals(uuid)){
-					player.aliveFlag = true
-					player.map = Option(map)
-					player.actorRef ! Ping
-				} else {
-					player.map match{
-						case Some(somemap) => if(somemap.equals(map)) player.actorRef ! Correction(uuid, job, x, y, direction, state, frameTime)
-						case None => 
+			Server.mapRouter(map).route(Correction(uuid, job, x, y, direction, state, frameTime), self)
+			breakable{
+				Server.players.foreach{player => 
+					if(player.uuid.equals(uuid)){
+						player.aliveFlag = true
+						player.actorRef ! Ping
+						break
 					}
 				}
 			}
 
 		case NotAlive(uuid, map) => 
-			Server.players.foreach{player =>
-				player.map match{
-					case Some(somemap) => if(somemap.equals(map)) player.actorRef ! KillPlayer(uuid)
-					case None =>
-				}
-			}
+			Server.mapRouter(map).route(KillPlayer(uuid), self)
 	}
 }

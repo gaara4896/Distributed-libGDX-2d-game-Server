@@ -33,12 +33,18 @@ class ServerConnectionActor extends Actor{
 			Server.players += PlayerRef(sender(), None, playerUUID)
 			sender() ! Connected(playerUUID, job)
 			
-		case Quit(uuid) => Server.players.foreach{player =>
-				if(player.actorRef == sender()){
-					Server.players -= player
-					
-				} else {
-					player.actorRef ! KillPlayer(uuid)
+		case Quit(uuid) => 
+			breakable{
+				for(player <- Server.players){
+					if(player.actorRef == sender()){
+						player.map match {
+							case Some(x) => 
+								Server.mapRouter(x) = Server.mapRouter(x).removeRoutee(player.actorRef)
+								Server.mapRouter(x).route(KillPlayer(uuid), self)
+						}
+						Server.players -= player
+						break
+					}
 				}
 			}
 	}
