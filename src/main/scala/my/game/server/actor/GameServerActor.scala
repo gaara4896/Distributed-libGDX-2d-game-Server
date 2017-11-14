@@ -22,6 +22,7 @@ class GameServerActor extends Actor{
 				Server.players.foreach{player => 
 					if(player.uuid.equals(uuid)){
 						player.map = Option(map)
+						player.actorRef ! Ping
 						break
 					}
 				}

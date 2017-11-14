@@ -1,6 +1,7 @@
 package my.game.server.actor
 
 import akka.actor.Actor
+import akka.remote.DisassociatedEvent
 
 import my.game.server.Server
 import my.game.pkg.client.dictionary.ClientDictionary._
@@ -16,6 +17,14 @@ import scala.util.Random
 import scala.util.control.Breaks._
 
 class ServerConnectionActor extends Actor{
+
+	/**
+	 * Override config on prestart
+	 * @return Unit Return nothing
+	 */
+	override def preStart():Unit = {
+		context.system.eventStream.subscribe(self, classOf[akka.remote.DisassociatedEvent])
+	}
 
 	/**
 	 * Called when actor received message
@@ -44,6 +53,18 @@ class ServerConnectionActor extends Actor{
 						}
 						Server.players -= player
 						break
+					}
+				}
+			}
+		case DisassociatedEvent(localAddress, remoteAddress, _) => 
+			for(player <- Server.players){
+				if(player.actorRef.path.address == remoteAddress){
+					player.map match {
+						case Some(somemap) => 
+							Server.mapRouter(somemap) = Server.mapRouter(somemap).removeRoutee(player.actorRef)
+							Server.gameServerActor ! NotAlive(player.uuid, somemap)
+							Server.players -= player
+						case None => Server.players -= player
 					}
 				}
 			}
