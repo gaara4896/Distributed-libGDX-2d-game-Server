@@ -23,6 +23,7 @@ class GameServerActor extends Actor{
 					if(player.uuid.equals(uuid)){
 						player.map = Option(map)
 						player.actorRef ! Ping
+						player.actorRef ! NPCInit(Server.remoteNpc(map).getNPCList)
 						break
 					}
 				}
@@ -43,10 +44,13 @@ class GameServerActor extends Actor{
 				Server.players.foreach{player => 
 					if(player.uuid.equals(uuid)){
 						player.map = Option(mapTo)
+						player.actorRef ! NPCInit(Server.remoteNpc(mapTo).getNPCList)
 						break
 					}
 				}
 			}
+
+		case UpdateNPC(uuid, map, direction, x, y, range) => Server.mapRouter(map).route(NPCMove(uuid, direction, x, y, range), self)
 
 		case Alive(uuid, job, map, x, y, direction, state, frameTime) =>
 			Server.mapRouter(map).route(Correction(uuid, job, x, y, direction, state, frameTime), self)
