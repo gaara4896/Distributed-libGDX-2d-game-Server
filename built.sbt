@@ -12,8 +12,7 @@ libraryDependencies ++= Seq(
     "com.typesafe.akka" %% "akka-actor" % "2.5.6",
     "com.typesafe.akka" %% "akka-testkit" % "2.5.6",
     "com.typesafe.akka" %% "akka-remote" % "2.5.6",
-    "org.scalafx" %% "scalafx" % "8.0.102-R11",
-	"org.scalafx" %% "scalafxml-core-sfx8" % "0.4"
+    "com.badlogicgames.gdx" % "gdx" % "1.9.6"
 )
 
 cancelable in Global := true

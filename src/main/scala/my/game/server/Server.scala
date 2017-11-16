@@ -48,8 +48,8 @@ object Server extends App{
 			players.foreach{player => player.aliveFlag = false}
 			checkPlayerAlive = 3f
 		}
-
 		remoteNpc.keys.foreach{mapNpc => remoteNpc(mapNpc).update(delta)}
+		Thread.sleep(30)
 	}
 
 	def getDelta(currentNanoTime:Double):Double = {
