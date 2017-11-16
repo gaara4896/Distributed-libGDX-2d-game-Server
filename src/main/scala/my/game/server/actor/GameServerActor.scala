@@ -21,8 +21,8 @@ class GameServerActor extends Actor{
 			breakable{
 				Server.players.foreach{player => 
 					if(player.uuid.equals(uuid)){
+						player.aliveFlag = true
 						player.map = Option(map)
-						player.actorRef ! Ping
 						player.actorRef ! NPCInit(Server.remoteNpc(map).getNPCList)
 						break
 					}
@@ -58,7 +58,7 @@ class GameServerActor extends Actor{
 				Server.players.foreach{player => 
 					if(player.uuid.equals(uuid)){
 						player.aliveFlag = true
-						player.actorRef ! Ping
+						sender() ! Ping
 						break
 					}
 				}
