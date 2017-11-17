@@ -19,6 +19,10 @@ class RemoteMovingNPC(_uuid:String, _job:Job, _map:String, _x:Float, _y:Float, v
 	var restTime:Float = 0
 	var state = State.WALKING
 
+	/**
+	 * Update NPC status
+	 * @param  delta:Float Delta time of the frame
+	 */
 	def update(delta:Float){
 		state match{
 			case State.IDLE => 
@@ -64,5 +68,16 @@ class RemoteMovingNPC(_uuid:String, _job:Job, _map:String, _x:Float, _y:Float, v
 
 object RemoteMovingNPC{
 
+	/**
+	 * Apply method for creating RemoteMovingNPC
+	 * @param  uuid:String     UUID of the Remote NPC
+	 * @param  job:Job         Job of the NPC
+	 * @param  map:String      Map of the NPC locate at
+	 * @param  x:Float         X position of the NPC start with
+	 * @param  y:Float         Y position of the NPC start with
+	 * @param  rangeX:Float    X range of NPC will move maximum
+	 * @param  rangeY:Float    Y range of NPC will move maximum
+	 * @return RemoteMovingNPC New Instance of RemoteMovingNPC
+	 */
 	def apply(uuid:String, job:Job, map:String, x:Float, y:Float, rangeX:Float, rangeY:Float):RemoteMovingNPC = new RemoteMovingNPC(uuid, job, map, x, y, rangeX, rangeY)
 }

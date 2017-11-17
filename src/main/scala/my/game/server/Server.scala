@@ -52,6 +52,11 @@ object Server extends App{
 		Thread.sleep(30)
 	}
 
+	/**
+	 * Get delta value of the frame
+	 * @param  currentNanoTime:Double Current nano time in Double
+	 * @return Double                 Delta value of the frame
+	 */
 	def getDelta(currentNanoTime:Double):Double = {
 		var delta = currentNanoTime - lastFrameTime
 		if(delta > 1){

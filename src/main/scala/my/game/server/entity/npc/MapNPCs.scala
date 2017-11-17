@@ -19,6 +19,10 @@ abstract class MapNPCs{
 		movingNpcs.foreach{npc => npc.update(delta)}
 	}
 
+	/**
+	 * Get List of NPC
+	 * @return ListBuffer[(String, Job, Direction, Float, Float, Float)] ListBuffer of NPC, where contain UUID, job, direction, x, y, and walk range
+	 */
 	def getNPCList():ListBuffer[(String, Job, Direction, Float, Float, Float)] = {
 		val npcList = new ListBuffer[(String, Job, Direction, Float, Float, Float)]()
 		npcs.foreach{npc => npcList += ((npc.uuid, npc.job, npc.direction, npc.x, npc.y, 0))}
