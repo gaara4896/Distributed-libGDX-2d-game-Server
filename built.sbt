@@ -19,4 +19,25 @@ cancelable in Global := true
 
 connectInput in run := true
 
+resolvers ++= Seq(
+      "Sonatype OSS Snapshots" at
+        "https://oss.sonatype.org/content/repositories/snapshots",
+      "Sonatype OSS Releases" at
+        "https://oss.sonatype.org/content/repositories/releases",
+      "Typesafe Repository" at
+        "http://repo.typesafe.com/typesafe/releases/"
+    )
+
 fork := true
+
+val %/ = if (java.io.File.pathSeparator == "\\") "\\\\" else java.io.File.pathSeparator
+
+assemblyMergeStrategy in assembly := {
+  case PathList("javax", "servlet", xs @ _*)         => MergeStrategy.first
+  case PathList(ps @ _*) if ps.last endsWith ".html" => MergeStrategy.first
+  case "application.conf"                            => MergeStrategy.concat
+  case "unwanted.txt"                                => MergeStrategy.discard
+  case x =>
+    val oldStrategy = (assemblyMergeStrategy in assembly).value
+    oldStrategy(x)
+}
